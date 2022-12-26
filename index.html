@@ -8,14 +8,35 @@
   <title>Nomie Stopwatch Plugin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://plugins.nomie.app/v1/nomie-plugin.js"></script>
-  <script src="https://unpkg.com/petite-vue" defer init></script>
+  <script src="https://unpkg.com/petite-vue" defer></script>
   <script src="stopwatch.js" defer></script>
 </head>
 
 <body class="bg-gray-200 dark:bg-gray-800">
-  <div id="content">
-    <p>This is a test!</p>
-  </div>
+  <main id="content">
+    <section class="flex space-x-0 w-full mb-2">
+      <button class="bg-green-400 text-gray-800 dark:bg-green-600 dark:text-gray-200 rounded-l-2xl p-1 grow"
+        @click="stopwatch_add_new(false)">Add General Timer</button>
+      <button class="bg-indigo-400 text-gray-800 dark:bg-indigo-600 dark:text-gray-200 rounded-r-2xl p-1 grow"
+        @click="stopwatch_add_new(true)">Add Specific Timer</button>
+    </section>
+    <section v-for="(stopwatch, index) in current_stopwatches" class="bg-gray-500 divide-y-2 divide-double">
+      <div class="flex w-70 py-2 my-2 justify-between self-start flex-col divide-y-1 divide-transparent">
+        <p class="text-gray-800 dark:text-gray-200 text-center text-2xl font-bold flex-initial">
+          {{stopwatch.reactive_formattedTime()}}</p>
+        <div class="flex space-x-0 py-3 px-1 flex-auto">
+          <button class="bg-orange-400 text-gray-800 dark:bg-orange-600 dark:text-gray-200 rounded-l-lg p-1 flex-1"
+            @click="stopwatch_clear(index)">{{stopwatch.clear_text}}</button>
+          <button v-if="stopwatch.running" class="bg-gray-400 text-red-800 dark:bg-gray-600 dark:text-red-200 p-1 flex-1"
+            @click="stopwatch.pause()">{{stopwatch.running_text}}</button>
+          <button v-if="!stopwatch.running" class="bg-gray-400 text-gray-800 dark:bg-gray-600 dark:text-gray-200 p-1 flex-1"
+            @click="stopwatch.resume()">{{stopwatch.not_running_text}}</button>
+          <button class="bg-blue-400 text-gray-800 dark:bg-blue-600 dark:text-gray-200 rounded-r-lg p-1 flex-1"
+            @click="stopwatch_save(index)">{{stopwatch.save_text}}</button>
+        </div>
+      </div>
+    </section>
+  </main>
 </body>
 
 </html>
