@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation",
     ],
-    version: "0.3.0", // Mostly follows SemVer
+    version: "0.3.1", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -139,7 +139,7 @@ PetiteVue.createApp({
         plugin.storage.setItem(SAVED_STOPWATCHES, this.current_stopwatches);
     },
     // 2. Clear a stopwatch
-    stopwatch_clear(index) {
+    async stopwatch_clear(index) {
         if (this.current_stopwatches[index]) {
             let will_delete = await plugin.confirm("Are you sure you want to delete this stopwatch?", "You will not be able recovery it.");
             if (will_delete) {
@@ -153,7 +153,7 @@ PetiteVue.createApp({
         plugin.storage.setItem(SAVED_STOPWATCHES, this.current_stopwatches);
     },
     // 3. Save a finished stopwatch
-    stopwatch_save(index) {
+    async stopwatch_save(index) {
         if (this.current_stopwatches[index]) {
             let stopwatch = this.current_stopwatches[index];
             console.log(stopwatch, stopwatch.after_stop);
