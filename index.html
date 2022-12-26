@@ -17,11 +17,37 @@
     <section class="flex space-x-0 w-full mb-2">
       <button class="bg-green-400 text-gray-800 dark:bg-green-600 dark:text-gray-200 rounded-l-2xl p-1 grow"
         @click="stopwatch_add_new(false)">Add General Timer</button>
-      <button class="bg-indigo-400 text-gray-800 dark:bg-indigo-600 dark:text-gray-200 rounded-r-2xl p-1 grow"
+      <button class="bg-indigo-400 text-gray-800 dark:bg-indigo-600 dark:text-gray-200 p-1 grow"
         @click="stopwatch_add_new(true)">Add Specific Timer</button>
+      <button class="bg-cyan-400 text-gray-800 dark:bg-cyan-600 dark:text-gray-200 rounded-r-2xl p-1 grow"
+        @click="toggleSettingsPage()">Settings</button>
+    </section>
+    <section v-if="settings_open" class="bg-gray-500 divide-y-2">
+      <h1>Settings</h1>
+      <p>{{save_note_immediately}} {{will_use_name}}</p>
+      <div>
+        <label class="inline-flex relative items-center cursor-pointer">
+          <input type="checkbox" value="" class="sr-only peer" v-model="save_note_immediately"
+            @change="changeSavingNotesImmediately" />
+          <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+          </div>
+          <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Save Immediately</span>
+        </label>
+      </div>
+      <div>
+        <label class="inline-flex relative items-center cursor-pointer">
+          <input type="checkbox" value="" class="sr-only peer" v-model="will_use_name" @change="changeAllowNamingStopwatches" />
+          <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+          </div>
+          <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Allow Naming Stopwatches</span>
+        </label>
+      </div>
     </section>
     <section v-for="(stopwatch, index) in current_stopwatches" class="bg-gray-500 divide-y-2 divide-double">
       <div class="flex w-70 py-2 my-2 justify-between self-start flex-col divide-y-1 divide-transparent">
+        <h1 v-if="stopwatch.name">{{stopwatch.name}}</h1>
         <p class="text-gray-800 dark:text-gray-200 text-center text-2xl font-bold flex-initial">
           {{stopwatch.reactive_formattedTime()}}</p>
         <div class="flex space-x-0 py-3 px-1 flex-auto">
