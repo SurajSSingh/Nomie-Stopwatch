@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation",
     ],
-    version: "0.2.2", // Mostly follows SemVer
+    version: "0.3.0", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -130,22 +130,22 @@ PetiteVue.createApp({
     async stopwatch_add_new(will_use_trackers = false) {
         if (will_use_trackers) {
             const trackers = await plugin.selectTrackables(null, true);
-            console.log(trackers);
-            trackers.map(tracker => {
-                console.log(tracker, tracker.toString());
-            });
             this.current_stopwatches.push(new Stopwatch(trackers));
         }
         else {
             this.current_stopwatches.push(new Stopwatch([]));
         }
-        plugin.alert(`New ${will_use_trackers ? "Specific" : "General"} Stopwatch started`, "A new stopwatch has started!");
+        plugin.alert(`New ${will_use_trackers ? "Specific" : "General"} Stopwatch created`, "A new stopwatch has been created!");
         plugin.storage.setItem(SAVED_STOPWATCHES, this.current_stopwatches);
     },
     // 2. Clear a stopwatch
     stopwatch_clear(index) {
         if (this.current_stopwatches[index]) {
-            this.current_stopwatches.splice(index, 1);
+            let will_delete = await plugin.confirm("Are you sure you want to delete this stopwatch?", "You will not be able recovery it.");
+            if (will_delete) {
+                this.current_stopwatches.splice(index, 1);
+                plugin.alert("Stopwatch Deleted!", "The stopwatch has been deleted.");
+            }
         }
         else {
             plugin.alert("Invalid stopwatch index", `Expected a number between 0 and ${this.current_stopwatches.length - 1} (inclusive); got this instead: ${index}`);
@@ -156,8 +156,11 @@ PetiteVue.createApp({
     stopwatch_save(index) {
         if (this.current_stopwatches[index]) {
             let stopwatch = this.current_stopwatches[index];
-            // await plugin.getTrackableInput()
-            // let answer = await Promise.all(stopwatch.after_stop.map(async tracker => console.log(`${tracker}`)));
+            console.log(stopwatch, stopwatch.after_stop);
+            let answer = await Promise.all(stopwatch.after_stop.map(async tracker => {
+                await plugin.getTrackableInput(tracker.id);
+            }));
+            console.log(answer, answer.toString());
             plugin.openNoteEditor({
                 note: `#stopwatch(${stopwatch.formattedTime})`,
                 score: 3,
