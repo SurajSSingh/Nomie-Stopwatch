@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation",
     ],
-    version: "0.4.2", // Mostly follows SemVer
+    version: "0.4.3", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -177,10 +177,10 @@ PetiteVue.createApp({
                 // console.log(tracker);
                 answers.push(await plugin.getTrackableInput(tracker.id));
             }
-            // console.log(answer, answer.toString());
+            console.log(answer, answer.toString());
             const name = stopwatch.name ? ` from ${stopwatch.name},` : "";
-            const answers_note = answers.join(" ");
-            const resulting_note = `${this.stopwatch_name}(${stopwatch.formattedTime})${name}${answers_note ? answers_note : ""}`;
+            const answer_notes = answers.map(tracker => tracker.note).join(" ");
+            const resulting_note = `${this.stopwatch_name}(${stopwatch.formattedTime})${name}${answer_notes}`;
             if (this.save_note_immediately) {
                 plugin.createNote({
                     note: resulting_note,
