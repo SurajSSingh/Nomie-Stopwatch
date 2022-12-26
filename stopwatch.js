@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation",
     ],
-    version: "0.2.1", // Mostly follows SemVer
+    version: "0.2.2", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -127,9 +127,10 @@ PetiteVue.createApp({
 
     // Main page:
     // 1. Add a new stopwatch
-    stopwatch_add_new(will_use_trackers = false) {
+    async stopwatch_add_new(will_use_trackers = false) {
         if (will_use_trackers) {
-            const trackers = plugin.selectTrackables(null, true);
+            const trackers = await plugin.selectTrackables(null, true);
+            console.log(trackers);
             trackers.map(tracker => {
                 console.log(tracker, tracker.toString());
             });
