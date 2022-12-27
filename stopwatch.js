@@ -104,7 +104,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.8.0",
+    version: "0.9.0",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -276,4 +276,6 @@ const content = {
         }
     }
 };
+content.initializeLoad("Pre-mount");
 PetiteVue.createApp(content).mount('#content');
+console.log(`${plugin.pluginDetails.name} ${plugin.pluginDetails.version} Initialized`);
