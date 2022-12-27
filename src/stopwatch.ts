@@ -420,7 +420,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.6.1", // Mostly follows SemVer
+    version: "0.7.0", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
