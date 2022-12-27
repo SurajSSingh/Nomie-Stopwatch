@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.5.3", // Mostly follows SemVer
+    version: "0.6.0", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -122,6 +122,11 @@ class Stopwatch {
 PetiteVue.createApp({
     // Fields
     current_stopwatches: [],
+    debug: false,
+    stopwatch_name: {
+        storage_name: SETTING_STOPWATCH_TRACKER_NAME,
+        value: "#stopwatch",
+    },
     settings_open: false,
     settings: {
         will_use_name: {
@@ -169,11 +174,6 @@ PetiteVue.createApp({
             },
         },
     },
-    debug: false,
-    stopwatch_name: {
-        storage_name: SETTING_STOPWATCH_TRACKER_NAME,
-        value: "#stopwatch",
-    },
 
     // Helper functions
     tryRunAlert(title, message) {
@@ -187,7 +187,6 @@ PetiteVue.createApp({
             // Try to get the saved item from storage if possible, or leave the current setting
             this.settings[current_setting].value = plugin.storage.getItem(this.settings[current_setting].storage_name) ?? this.settings[current_setting].value;
         });
-        this.debugLog(this.settings);
     },
     checkedAction(item, action) {
         if (typeof item === "number") {
@@ -251,22 +250,32 @@ PetiteVue.createApp({
             }
         }
         let stopwatch = null;
-        // If using a stopwatch template, get all trackers included with that timer
+        // If using a stopwatch template, get the tracker info and create the stopwatch
         if (using_stopwatch_template) {
-
-            const stopwatch_template = this.debug ? {} : await plugin.selectTrackable("tracker");
+            const stopwatch_template = this.debug ? [] : await plugin.selectTrackables(null, true);
             this.debugLog(stopwatch_template);
-            if (stopwatch_template) {
-                const trackers = [];
-                stopwatch = new Stopwatch(stopwatch_name, trackers);
-            }
-        }
-        // Otherwise, ask for the trackers to include and push that up
-        else {
-            const trackers = this.debug ? [] : await plugin.selectTrackables(null, true);
+            const trackers = stopwatch_template.map(track => {
+                if (track.tracker && track.tracker.type === "timer") {
+                    // Get each included tracker as name only, split by space
+                    return track.tracker.include.split(" ").map(tracker => {
+                        // If it is a tracker (#), person (@), or context (+); get just the name (without value, before '(')
+                        if (tracker.startsWith("#") || tracker.startsWith("@") || tracker.startsWith("+")) {
+                            return tracker.split("(", 1)[0];
+                        }
+                        else {
+                            return tracker;
+                        }
+                    });
+                }
+                return track.id;
+            }).flat();
+            this.debugLog(trackers);
             stopwatch = new Stopwatch(stopwatch_name, trackers);
         }
-        stopwatch ??= new Stopwatch(stopwatch_name, []);
+        // Otherwise, just create the timer
+        else {
+            stopwatch = new Stopwatch(stopwatch_name, []);
+        }
         this.current_stopwatches.push(stopwatch);
         // Auto start
         if (this.settings.stopwatch_auto_start.value) stopwatch.resume();
@@ -291,7 +300,6 @@ PetiteVue.createApp({
     // 3. Save a finished stopwatch
     async stopwatch_save(index) {
         this.checkedAction(index, async (stopwatch, index) => {
-            this.debugLog(stopwatch);
             // Get answers from any part of the tracker
             let answers = [];
             for (const tracker of stopwatch.after_stop) {
@@ -306,7 +314,6 @@ PetiteVue.createApp({
                 score: 0,
             };
             this.current_stopwatches.splice(index, 1);
-            this.debugLog(answer_notes, final_note);
             this.settings.save_note_immediately.value
                 ? plugin.createNote(final_note)
                 : plugin.openNoteEditor(final_note);
