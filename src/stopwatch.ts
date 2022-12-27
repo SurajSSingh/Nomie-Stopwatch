@@ -302,6 +302,7 @@ interface ContentHelperFunctionality {
     checkedAction(item: number | Stopwatch, action: (stopwatch: Stopwatch, index: number) => void): void,
     toggleSettingSave(setting: Setting<boolean>): void,
     stopwatchClassStyle(stopwatch: Stopwatch): boolean,
+    initializeLoad(context?: string): Promise<void>
 }
 interface ContentVueFunctionality {
     mounted(): void,
@@ -422,7 +423,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.7.1", // Mostly follows SemVer
+    version: "0.8.0", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -505,55 +506,29 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
         stopwatchClassStyle(stopwatch): any {
             return stopwatch.running;
         },
-        //#endregion
+    async initializeLoad(context) {
+        await plugin.storage.init();
+        console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
+        console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+        // Assign all items if available or go with defaults
+        this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+        this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+        this.initSettings();
+        console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}` );
+    },
+    //#endregion
     //#region Content Vue Functionality
      mounted() {
         // When Plugin is first registered
-        plugin.onRegistered(async () => {
-            await plugin.storage.init();
-            // Assign all items if available or go with defaults
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        });
+        plugin.onRegistered(() => this.initializeLoad("Registration"));
         // When Object is launched
-        plugin.onLaunch(async () => {
-            await plugin.storage.init();
-            // Assign all items if available or go with defaults
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        })
+        plugin.onLaunch(() => this.initializeLoad("Launch"))
         
         // When UI is opened
-        plugin.onUIOpened(async () => {
-            await plugin.storage.init();
-            // Assign all items if available or go with defaults
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        })
+        plugin.onUIOpened(() => this.initializeLoad("UI"))
 
         // When Widget is opened
-        plugin.onWidget(async () => {
-            await plugin.storage.init();
-            // Assign all items if available or go with defaults
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        })
+        plugin.onWidget(() => this.initializeLoad("Widget"))
     },
     //#endregion
     //#region StopwatchFunctionality

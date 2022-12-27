@@ -104,7 +104,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.7.1",
+    version: "0.8.0",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -177,43 +177,20 @@ const content = {
     stopwatchClassStyle (stopwatch) {
         return stopwatch.running;
     },
+    async initializeLoad (context) {
+        await plugin.storage.init();
+        console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
+        console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+        this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+        this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+        this.initSettings();
+        console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}`);
+    },
     mounted () {
-        plugin.onRegistered(async ()=>{
-            await plugin.storage.init();
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        });
-        plugin.onLaunch(async ()=>{
-            await plugin.storage.init();
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        });
-        plugin.onUIOpened(async ()=>{
-            await plugin.storage.init();
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        });
-        plugin.onWidget(async ()=>{
-            await plugin.storage.init();
-            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
-            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
-            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
-            this.initSettings();
-            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
-        });
+        plugin.onRegistered(()=>this.initializeLoad("Registration"));
+        plugin.onLaunch(()=>this.initializeLoad("Launch"));
+        plugin.onUIOpened(()=>this.initializeLoad("UI"));
+        plugin.onWidget(()=>this.initializeLoad("Widget"));
     },
     async stopwatch_add_new (using_stopwatch_template) {
         let stopwatch_name = "";
