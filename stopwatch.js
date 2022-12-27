@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.5.1", // Mostly follows SemVer
+    version: "0.5.2", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -169,7 +169,7 @@ PetiteVue.createApp({
             },
         },
     },
-    debug: true,
+    debug: false,
     stopwatch_name: {
         storage_name: SETTING_STOPWATCH_TRACKER_NAME,
         value: "#stopwatch",
@@ -180,7 +180,7 @@ PetiteVue.createApp({
         if (this.show_alerts) plugin.alert(title, message);
     },
     debugLog(...message) {
-        if (this.debug) console.log(...message)
+        console.log(...message)
     },
     initSettings() {
         this.settings.forEach(current_setting => {
