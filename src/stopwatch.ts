@@ -304,7 +304,7 @@ interface ContentHelperFunctionality {
     stopwatchClassStyle(stopwatch: Stopwatch): boolean,
 }
 interface ContentVueFunctionality {
-    mounted(): Promise<void>,
+    mounted(): void,
 }
 interface StopwatchFunctionality{
     stopwatch_add_new(using_stopwatch_template: boolean): Promise<void>;
@@ -414,13 +414,15 @@ const plugin = new NomiePlugin({
     uses: [
         "createNote", // Create a new Note in Nomie
         "onLaunch", // Run on each launch of Nomie
+        "onUIOpened", // Runs when UI is opened
+        "onWidget", // Runs when widget is opened
         "selectTrackables", // Select a tracker or some set of trackers
         // "onNote", // Can listen for the note event - deactivate for now
         // "searchNotes", // May be used to search through notes - deactivate for now
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.7.0", // Mostly follows SemVer
+    version: "0.7.1", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -505,7 +507,8 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
         },
         //#endregion
     //#region Content Vue Functionality
-    async mounted() {
+     mounted() {
+        // When Plugin is first registered
         plugin.onRegistered(async () => {
             await plugin.storage.init();
             // Assign all items if available or go with defaults
@@ -516,6 +519,41 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
             this.initSettings();
             this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
         });
+        // When Object is launched
+        plugin.onLaunch(async () => {
+            await plugin.storage.init();
+            // Assign all items if available or go with defaults
+            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
+            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+            this.initSettings();
+            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
+        })
+        
+        // When UI is opened
+        plugin.onUIOpened(async () => {
+            await plugin.storage.init();
+            // Assign all items if available or go with defaults
+            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
+            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+            this.initSettings();
+            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
+        })
+
+        // When Widget is opened
+        plugin.onWidget(async () => {
+            await plugin.storage.init();
+            // Assign all items if available or go with defaults
+            this.debugLog(plugin.storage.getItem(SAVED_STOPWATCHES));
+            this.debugLog(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+            this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+            this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+            this.initSettings();
+            this.tryRunAlert("Plugin Initialized", "Stopwatch plugin now registered and ready to use!");
+        })
     },
     //#endregion
     //#region StopwatchFunctionality
