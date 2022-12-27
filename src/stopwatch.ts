@@ -423,7 +423,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.1", // Mostly follows SemVer
+    version: "0.9.2", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -507,10 +507,14 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
             return stopwatch.running;
         },
     initializeLoad(context) {
-        console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
-        console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
+        const loaded_stopwatches=plugin.storage.getItem(SAVED_STOPWATCHES);
+        console.log(loaded_stopwatches);
+        if(loaded_stopwatches){
+            const parsed_stopwatches = JSON.parse(loaded_stopwatches);
+            console.log(parsed_stopwatches);
+            this.current_stopwatches = parsed_stopwatches || [];
+        }
         // Assign all items if available or go with defaults
-        this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
         this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
         this.initSettings();
         console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}` );
@@ -598,9 +602,9 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
     stopwatch_save(index) {
         this.checkedAction(index, async (stopwatch, index) => {
             // Get answers from any part of the tracker
-            let answers = [];
+            const answers = [];
             for (const tracker of stopwatch.after_stop) {
-                let answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
+                const answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
                 this.debugLog(tracker, answer);
                 answers.push(answer);
             }

@@ -104,7 +104,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.9.1",
+    version: "0.9.2",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -178,9 +178,13 @@ const content = {
         return stopwatch.running;
     },
     initializeLoad (context) {
-        console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
-        console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
-        this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
+        const loaded_stopwatches = plugin.storage.getItem(SAVED_STOPWATCHES);
+        console.log(loaded_stopwatches);
+        if (loaded_stopwatches) {
+            const parsed_stopwatches = JSON.parse(loaded_stopwatches);
+            console.log(parsed_stopwatches);
+            this.current_stopwatches = parsed_stopwatches || [];
+        }
         this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
         this.initSettings();
         console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}`);
@@ -243,9 +247,9 @@ const content = {
     },
     stopwatch_save (index) {
         this.checkedAction(index, async (stopwatch, index)=>{
-            let answers = [];
+            const answers = [];
             for (const tracker of stopwatch.after_stop){
-                let answer = this.debug ? {
+                const answer = this.debug ? {
                     note: "#DEBUG"
                 } : await plugin.getTrackableInput(tracker);
                 this.debugLog(tracker, answer);
