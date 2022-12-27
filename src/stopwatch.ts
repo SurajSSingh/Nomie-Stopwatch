@@ -1,10 +1,7 @@
 "use strict";
 
-// Petite Vue loaded from index.html
-declare const PetiteVue: any;
-
-// GENERATED from: https://github.com/open-nomie/plugins/blob/master/src/v1/plugin-connect.ts using https://www.typescriptlang.org/
 // #region Generate Code
+// GENERATED from: https://github.com/open-nomie/plugins/blob/master/src/v1/plugin-connect.ts using https://www.typescriptlang.org/
 type PluginUseTypes = "trackablesSelected" | "selectTrackables" | "onUIOpened" | "openNoteEditor" | "onWidget" | "registered" | "onLaunch" | "openURL" | "openPlugin" | "searchNotes" | "searchReply" | "confirmReply" | "promptReply" | "onNote" | "createNote";
  type PluginType = {
     id?: string;
@@ -253,6 +250,10 @@ type UserPrefs = {
 }
 // #endregion
 
+// #region Setup Code
+// Petite Vue loaded from index.html
+declare const PetiteVue: any;
+
 // Constant strings
 const SAVED_STOPWATCHES = "save_stopwatches";
 const SETTING_STOPWATCH_TRACKER_NAME = "stopwatch_tracker_name";
@@ -302,7 +303,7 @@ interface ContentHelperFunctionality {
     checkedAction(item: number | Stopwatch, action: (stopwatch: Stopwatch, index: number) => void): void,
     toggleSettingSave(setting: Setting<boolean>): void,
     stopwatchClassStyle(stopwatch: Stopwatch): boolean,
-    initializeLoad(context?: string): Promise<void>
+    initializeLoad(context?: string): void,
 }
 interface ContentVueFunctionality {
     mounted(): void,
@@ -404,8 +405,7 @@ class Stopwatch {
         this.is_running ? this.pause() : this.resume();
     }
 }
-
-
+//#endregion
 
 // Init
 const plugin = new NomiePlugin({
@@ -423,7 +423,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.0", // Mostly follows SemVer
+    version: "0.9.1", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -506,8 +506,7 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
         stopwatchClassStyle(stopwatch): any {
             return stopwatch.running;
         },
-    async initializeLoad(context) {
-        await plugin.storage.init();
+    initializeLoad(context) {
         console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
         console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
         // Assign all items if available or go with defaults
@@ -520,7 +519,10 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
     //#region Content Vue Functionality
      mounted() {
         // When Plugin is first registered
-        plugin.onRegistered(() => this.initializeLoad("Registration"));
+        plugin.onRegistered(async () => {
+            await plugin.storage.init();
+            this.initializeLoad("Registration");
+        });
         // When Object is launched
         plugin.onLaunch(() => this.initializeLoad("Launch"))
         

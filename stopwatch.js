@@ -104,7 +104,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.9.0",
+    version: "0.9.1",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -177,8 +177,7 @@ const content = {
     stopwatchClassStyle (stopwatch) {
         return stopwatch.running;
     },
-    async initializeLoad (context) {
-        await plugin.storage.init();
+    initializeLoad (context) {
         console.log(plugin.storage.getItem(SAVED_STOPWATCHES));
         console.log(JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)));
         this.current_stopwatches = JSON.parse(plugin.storage.getItem(SAVED_STOPWATCHES)) || [];
@@ -187,7 +186,10 @@ const content = {
         console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}`);
     },
     mounted () {
-        plugin.onRegistered(()=>this.initializeLoad("Registration"));
+        plugin.onRegistered(async ()=>{
+            await plugin.storage.init();
+            this.initializeLoad("Registration");
+        });
         plugin.onLaunch(()=>this.initializeLoad("Launch"));
         plugin.onUIOpened(()=>this.initializeLoad("UI"));
         plugin.onWidget(()=>this.initializeLoad("Widget"));
