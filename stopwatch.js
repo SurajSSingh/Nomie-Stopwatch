@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.6.0", // Mostly follows SemVer
+    version: "0.6.1", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -252,8 +252,9 @@ PetiteVue.createApp({
         let stopwatch = null;
         // If using a stopwatch template, get the tracker info and create the stopwatch
         if (using_stopwatch_template) {
-            const stopwatch_template = this.debug ? [] : await plugin.selectTrackables(null, true);
-            this.debugLog(stopwatch_template);
+            const stopwatch_template = this.debug
+                ? {}
+                : await plugin.selectTrackables(null, true);
             const trackers = stopwatch_template.map(track => {
                 if (track.tracker && track.tracker.type === "timer") {
                     // Get each included tracker as name only, split by space
@@ -263,7 +264,7 @@ PetiteVue.createApp({
                             return tracker.split("(", 1)[0];
                         }
                         else {
-                            return tracker;
+                            return tracker.id;
                         }
                     });
                 }
@@ -303,7 +304,7 @@ PetiteVue.createApp({
             // Get answers from any part of the tracker
             let answers = [];
             for (const tracker of stopwatch.after_stop) {
-                let answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker.id);
+                let answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
                 this.debugLog(tracker, answer);
                 answers.push(answer);
             }
