@@ -14,7 +14,7 @@ const plugin = new NomiePlugin({
         "selectTrackables", // Select a tracker or some set of trackers
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.5.0", // Mostly follows SemVer
+    version: "0.5.1", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -127,10 +127,10 @@ PetiteVue.createApp({
         will_use_name: {
             storage_name: SETTING_ALLOW_NAMES,
             value: false,
-            activateTitle: "True",
-            activateMessage: "True Msg",
-            deactivateTitle: "False",
-            deactivateMessage: "False Msg",
+            activateTitle: "Allow Names",
+            activateMessage: "You can now name you stopwatches",
+            deactivateTitle: "Disallow Names",
+            deactivateMessage: "You cannot name your stopwatches",
             get title() {
                 return "Allow Naming Stopwatches";
             },
@@ -138,10 +138,10 @@ PetiteVue.createApp({
         save_note_immediately: {
             storage_name: SETTING_IMMEDIATELY_SAVE,
             value: false,
-            activateTitle: "True",
-            activateMessage: "True Msg",
-            deactivateTitle: "False",
-            deactivateMessage: "False Msg",
+            activateTitle: "Immediate Save",
+            activateMessage: "Notes are now saved immediately",
+            deactivateTitle: "Hold Save",
+            deactivateMessage: "Notes can be edited before being saved",
             get title() {
                 return "Save Notes Immediately";
             },
@@ -149,10 +149,10 @@ PetiteVue.createApp({
         stopwatch_auto_start: {
             storage_name: SETTING_AUTOSTART,
             value: false,
-            activateTitle: "True",
-            activateMessage: "True Msg",
-            deactivateTitle: "False",
-            deactivateMessage: "False Msg",
+            activateTitle: "Auto Start",
+            activateMessage: "Stopwatches are started when created",
+            deactivateTitle: "Manual Start",
+            deactivateMessage: "Stopwatches are paused when created",
             get title() {
                 return "Auto Start Stopwatches";
             },
@@ -160,16 +160,16 @@ PetiteVue.createApp({
         show_alerts: {
             storage_name: SETTING_SHOW_ALERTS,
             value: true,
-            activateTitle: "True",
-            activateMessage: "True Msg",
-            deactivateTitle: "False",
-            deactivateMessage: "False Msg",
+            activateTitle: "Show Alerts",
+            activateMessage: "Showing all regular alerts",
+            deactivateTitle: "Hide Alerts",
+            deactivateMessage: "Hiding regular alert (other alerts will still happen)",
             get title() {
                 return "Show General Alerts";
             },
         },
     },
-    debug: false,
+    debug: true,
     stopwatch_name: {
         storage_name: SETTING_STOPWATCH_TRACKER_NAME,
         value: "#stopwatch",
@@ -290,8 +290,8 @@ PetiteVue.createApp({
     // 3. Save a finished stopwatch
     async stopwatch_save(index) {
         this.checkedAction(index, async (stopwatch, index) => {
-            // If the
             this.debugLog(stopwatch);
+            // Get answers from any part of the tracker
             let answers = [];
             for (const tracker of stopwatch.after_stop) {
                 let answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker.id);
@@ -304,10 +304,11 @@ PetiteVue.createApp({
                 note: `${this.stopwatch_name.value}(${stopwatch.formattedTime})${name}${answer_notes}`,
                 score: 0,
             };
-            this.debugLog(answer_notes, final_note);
-            const note_function = this.settings.save_note_immediately.value ? plugin.createNote : plugin.openNoteEditor;
-            note_function(final_note);
             this.current_stopwatches.splice(index, 1);
+            this.debugLog(answer_notes, final_note);
+            this.settings.save_note_immediately.value
+                ? plugin.createNote(final_note)
+                : plugin.openNoteEditor(final_note);
         });
         // Save the currently running stopwatches
         saveStopwatches(this.current_stopwatches);
