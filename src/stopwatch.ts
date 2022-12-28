@@ -425,7 +425,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.6", // Mostly follows SemVer
+    version: "0.9.7", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -654,7 +654,7 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
     },  
     async initStorage() {
         console.log(plugin);
-        this.initializeLoad("Init Storage");
+        await plugin.storage.init();
     }
 };
 
