@@ -105,11 +105,12 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.9.5",
+    version: "0.9.6",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
 });
+plugin.storage.filename = "stopwatch";
 const content = {
     current_stopwatches: [],
     debug: false,
@@ -148,9 +149,11 @@ const content = {
         console.log(...message);
     },
     initSettings () {
+        console.log("Before:", this.settings);
         for(const current_setting in this.settings){
             this.settings[current_setting].value = plugin.storage.getItem(this.settings[current_setting].storage_name) ?? this.settings[current_setting].value;
         }
+        console.log("After:", this.settings);
     },
     checkedAction (item, action) {
         if (typeof item === "number") {
@@ -179,6 +182,7 @@ const content = {
         return stopwatch.running;
     },
     initializeLoad (context) {
+        console.log(plugin);
         const loaded_stopwatches = plugin.storage.getItem(SAVED_STOPWATCHES);
         console.log(loaded_stopwatches);
         if (loaded_stopwatches) {
@@ -288,7 +292,7 @@ const content = {
     },
     async initStorage () {
         console.log(plugin);
-        await plugin.storage.init().then(()=>this.initializeLoad("Init Storage"));
+        this.initializeLoad("Init Storage");
     }
 };
 PetiteVue.createApp(content).mount('#content');

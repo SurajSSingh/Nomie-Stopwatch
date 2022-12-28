@@ -425,13 +425,14 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.5", // Mostly follows SemVer
+    version: "0.9.6", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
 });
 
-
+plugin.storage.filename = "stopwatch";
+// plugin.storage.data = JSON.parse('{"save_stopwatches":"[]","show_alerts":false}');
 
 const content: ContentType & ContentHelperFunctionality & ContentVueFunctionality & StopwatchFunctionality & SettingFunctionality = {
     //#region Content Type
@@ -474,9 +475,11 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
         console.log(...message)
     },
     initSettings(): void {
+        console.log("Before:", this.settings)
         for (const current_setting in this.settings) {
             this.settings[current_setting].value = plugin.storage.getItem(this.settings[current_setting].storage_name) ?? this.settings[current_setting].value;
         }
+        console.log("After:", this.settings)
     },
     checkedAction(item, action) {
         if (typeof item === "number") {
@@ -511,6 +514,7 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
             return stopwatch.running;
         },
     initializeLoad(context) {
+        console.log(plugin);
         const loaded_stopwatches=plugin.storage.getItem(SAVED_STOPWATCHES);
         console.log(loaded_stopwatches);
         if(loaded_stopwatches){
@@ -650,9 +654,7 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
     },  
     async initStorage() {
         console.log(plugin);
-        await plugin.storage.init().then(
-            () => this.initializeLoad("Init Storage")
-        );
+        this.initializeLoad("Init Storage");
     }
 };
 
