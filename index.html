@@ -12,7 +12,7 @@
 </head>
 
 <body class="bg-gray-200 dark:bg-gray-800">
-  <main id="content" @vue:mounted="initializeLoad('Vue Mount')">
+  <main id="content" @vue:mounted="initStorage()">
     <section class="flex space-x-0 w-full mb-2 flex-col">
       <button class="bg-cyan-400 text-gray-800 dark:bg-cyan-600 dark:text-gray-200 rounded-t-2xl p-1 grow"
         @click="toggleSettingsPage()">Settings</button>

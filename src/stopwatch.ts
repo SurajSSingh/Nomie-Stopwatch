@@ -274,6 +274,7 @@ function msToHMS(ms: number) {
 }
 
 function saveStopwatches(stopwatch_arr: Stopwatch[]) {
+    console.log(stopwatch_arr);
     plugin.storage.setItem(SAVED_STOPWATCHES, JSON.stringify(stopwatch_arr));
 }
 
@@ -316,6 +317,7 @@ interface StopwatchFunctionality{
 interface SettingFunctionality{
     toggleSettingsPage(): void;
     changeStopwatchTrackerName(): Promise<void>
+    initStorage(): Promise<void>
 }
 
 
@@ -423,7 +425,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.3", // Mostly follows SemVer
+    version: "0.9.4", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -528,7 +530,10 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
             this.initializeLoad("Registration");
         });
         // When Object is launched
-        plugin.onLaunch(() => this.initializeLoad("Launch"))
+        plugin.onLaunch(async () => {
+            await plugin.storage.init();
+            this.initializeLoad("Launch");
+        })
         
         // When UI is opened
         plugin.onUIOpened(() => this.initializeLoad("UI"))
@@ -640,8 +645,12 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
             plugin.storage.setItem(SETTING_STOPWATCH_TRACKER_NAME, this.stopwatch_name.value);
         }
     },  
+    async initStorage() {
+        await plugin.storage.init();
+        this.initializeLoad("Init Storage");
+    }
 };
 
 // Petite Vue Initialization
-PetiteVue.createApp(content).mount('#content')
+PetiteVue.createApp(content).mount('#content');
 console.log(`${plugin.pluginDetails.name} ${plugin.pluginDetails.version} Initialized` );

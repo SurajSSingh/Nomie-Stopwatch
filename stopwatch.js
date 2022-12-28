@@ -22,6 +22,7 @@ function msToHMS(ms) {
     ];
 }
 function saveStopwatches(stopwatch_arr) {
+    console.log(stopwatch_arr);
     plugin.storage.setItem(SAVED_STOPWATCHES, JSON.stringify(stopwatch_arr));
 }
 class Stopwatch {
@@ -104,7 +105,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.9.2",
+    version: "0.9.4",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -194,7 +195,10 @@ const content = {
             await plugin.storage.init();
             this.initializeLoad("Registration");
         });
-        plugin.onLaunch(()=>this.initializeLoad("Launch"));
+        plugin.onLaunch(async ()=>{
+            await plugin.storage.init();
+            this.initializeLoad("Launch");
+        });
         plugin.onUIOpened(()=>this.initializeLoad("UI"));
         plugin.onWidget(()=>this.initializeLoad("Widget"));
     },
@@ -280,8 +284,11 @@ const content = {
             }
             plugin.storage.setItem(SETTING_STOPWATCH_TRACKER_NAME, this.stopwatch_name.value);
         }
+    },
+    async initStorage () {
+        await plugin.storage.init();
+        this.initializeLoad("Init Storage");
     }
 };
-content.initializeLoad("Pre-mount");
 PetiteVue.createApp(content).mount('#content');
 console.log(`${plugin.pluginDetails.name} ${plugin.pluginDetails.version} Initialized`);
