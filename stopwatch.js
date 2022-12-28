@@ -117,7 +117,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.6",
+    version: "0.10.7",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -218,7 +218,7 @@ new Vue({
             const loaded_stopwatches = plugin.storage.getItem(SAVED_STOPWATCHES);
             if (loaded_stopwatches) {
                 const parsed_stopwatches = JSON.parse(loaded_stopwatches);
-                this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running)) || [];
+                this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running, stopwatch_info.last_unpause_time)) || [];
             }
             for (const stopwatch of this.current_stopwatches) {
                 if (stopwatch.running) {
@@ -319,6 +319,11 @@ new Vue({
                 // Save the currently running stopwatches
                 saveStopwatches(this.current_stopwatches);
             });
+        },
+        // Save when you toggle a stopwatch
+        saving_stopwatch_toggle(stopwatch){
+            stopwatch.toggle();
+            saveStopwatches(this.current_stopwatches);
         },
         //#endregion
 
