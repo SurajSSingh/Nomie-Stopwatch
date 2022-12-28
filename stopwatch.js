@@ -305,6 +305,7 @@ new Vue({
         // 3. Save a finished stopwatch
         stopwatch_save(index) {
             this.checkedAction(index, async (stopwatch, index) => {
+                stopwatch.pause();
                 // Get answers from any part of the tracker
                 const answers = [];
                 for (const tracker of stopwatch.after_stop) {
