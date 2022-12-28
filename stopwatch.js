@@ -75,6 +75,10 @@ class Stopwatch {
     get save_text() {
         return "Save";
     }
+    get is_empty_after_stop(){
+        console.log(this.after_stop)
+        return this.after_stop.length === 0;
+    }
     get reactive_formattedTime() {
         this.time_elapsed;
         return this.formattedTime;
@@ -122,7 +126,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.8",
+    version: "0.10.9",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
