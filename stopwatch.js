@@ -124,7 +124,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.9",
+    version: "0.10.10",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
