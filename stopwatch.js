@@ -117,7 +117,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.5",
+    version: "0.10.6",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -292,9 +292,9 @@ new Vue({
                     this.current_stopwatches.splice(index, 1);
                     this.tryRunAlert("Stopwatch Deleted!", "The stopwatch has been deleted.");
                 }
+                // Save the currently running stopwatches
+                saveStopwatches(this.current_stopwatches);
             });
-            // Save the currently running stopwatches
-            saveStopwatches(this.current_stopwatches);
         },
         // 3. Save a finished stopwatch
         stopwatch_save(index) {
@@ -316,9 +316,9 @@ new Vue({
                 this.settings.save_note_immediately.value
                     ? plugin.createNote(final_note)
                     : plugin.openNoteEditor(final_note);
+                // Save the currently running stopwatches
+                saveStopwatches(this.current_stopwatches);
             });
-            // Save the currently running stopwatches
-            saveStopwatches(this.current_stopwatches);
         },
         //#endregion
 
