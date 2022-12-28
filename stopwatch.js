@@ -3,7 +3,6 @@
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
 "use strict";
-const { createApp , reactive  } = Vue;
 const SAVED_STOPWATCHES = "save_stopwatches";
 const SETTING_STOPWATCH_TRACKER_NAME = "stopwatch_tracker_name";
 const SETTING_ALLOW_NAMES = "allow_names";
@@ -35,9 +34,9 @@ class Stopwatch {
     timer;
     constructor(name = "", after_stopwatch = null){
         this.name = name;
-        this.time_elapsed = reactive({
+        this.time_elapsed = {
             value: 0
-        });
+        };
         this.is_running = false;
         this.currently_saved_millisec = 0;
         this.after_stop = Array.isArray(after_stopwatch) ? after_stopwatch : [];
@@ -105,7 +104,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.0",
+    version: "0.10.1",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true

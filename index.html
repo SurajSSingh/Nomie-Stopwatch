@@ -36,7 +36,7 @@
       </div>
     </section>
     <section v-for="(stopwatch, index) in current_stopwatches" class="flex flex-col my-1">
-      <button @click="stopwatch.toggle">
+      <button @click="stopwatch.toggle()">
         <hgroup class="flex w-full py-2 justify-between self-start flex-col divide-y-1 rounded-t-lg"
           v-bind:class="{'bg-red-400 text-red-800 dark:bg-red-600 dark:text-red-200 p-1 flex-1':!stopwatchClassStyle(stopwatch), 'bg-green-400 text-green-800 dark:bg-green-600 dark:text-green-200 p-1 flex-1': stopwatchClassStyle(stopwatch)}">
           <h1 class="text-gray-800 dark:text-gray-200 text-center text-4xl font-medium flex-initial">
