@@ -272,7 +272,7 @@ new Vue({
                     }
                     return track.id;
                 }).flat();
-                this.debugLog(trackers);
+                console.log(trackers);
                 return new Stopwatch(stopwatch_name, trackers);
             }
             // Otherwise, just create the timer
@@ -312,7 +312,7 @@ new Vue({
                 const answers = [];
                 for (const tracker of stopwatch.after_stop) {
                     const answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
-                    this.debugLog(tracker, answer);
+                    console.log(tracker, answer);
                     answers.push(answer);
                 }
                 const name = stopwatch.name ? ` from ${stopwatch.name},` : "";
