@@ -423,7 +423,7 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.2", // Mostly follows SemVer
+    version: "0.9.3", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
@@ -643,6 +643,5 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
 };
 
 // Petite Vue Initialization
-content.initializeLoad("Pre-mount");
 PetiteVue.createApp(content).mount('#content')
 console.log(`${plugin.pluginDetails.name} ${plugin.pluginDetails.version} Initialized` );
