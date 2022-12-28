@@ -5,6 +5,7 @@ const SETTING_ALLOW_NAMES = "allow_names";
 const SETTING_IMMEDIATELY_SAVE = "immediate_save";
 const SETTING_AUTOSTART = "auto_start_stopwatch";
 const SETTING_SHOW_ALERTS = "show_alerts";
+// Convert milliseconds into Hours, Minutes, Seconds in an array
 function msToHMS(ms) {
     let seconds = ms / 1000;
     const hours = Math.floor(seconds / 3600);
@@ -17,6 +18,7 @@ function msToHMS(ms) {
         seconds
     ];
 }
+// Save stopwatches to the plugin storage
 function saveStopwatches(stopwatch_arr) {
     console.log(stopwatch_arr);
     plugin.storage.setItem(SAVED_STOPWATCHES, JSON.stringify(stopwatch_arr));
@@ -29,13 +31,13 @@ class Stopwatch {
     last_unpause_time;
     after_stop;
     timer;
-    constructor(name = "", after_stopwatch = null, time_elapsed = 0, currently_saved_millisec = 0, update_speed = 500, is_running = false) {
+    constructor(name = "", after_stopwatch = null, time_elapsed = 0, currently_saved_millisec = 0, update_speed = 500, is_running = false, last_unpause_time = null) {
         this.name = name;
         this.time_elapsed = time_elapsed;
         this.update_speed = update_speed;
         this.is_running = is_running;
         this.currently_saved_millisec = currently_saved_millisec;
-        this.last_unpause_time = new Date();
+        this.last_unpause_time = last_unpause_time ? new Date(last_unpause_time): new Date();
         this.after_stop = Array.isArray(after_stopwatch) ? after_stopwatch : [];
     }
     toString() {
@@ -43,7 +45,7 @@ class Stopwatch {
     }
     get milliseconds() {
         const now = new Date();
-        const from_pause = this.last_unpause_time && now - this.last_unpause_time >= 1000 ? now - this.last_unpause_time : 0;
+        const from_pause = this.timer && now - this.last_unpause_time >= 1000 ? now - this.last_unpause_time : 0;
         return from_pause + this.currently_saved_millisec;
     }
     get time() {
@@ -78,6 +80,7 @@ class Stopwatch {
         this.currently_saved_millisec += now - this.last_unpause_time;
         this.last_unpause_time = now;
         this.is_running = false;
+        this.timer = null;
     }
     resume() {
         this.last_unpause_time = new Date();
@@ -114,7 +117,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.4",
+    version: "0.10.5",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -174,9 +177,6 @@ new Vue({
         tryRunAlert(title, message) {
             if (this.settings.show_alerts.value) plugin.alert(title, message);
         },
-        debugLog(...message) {
-            console.log(...message)
-        },
         initSettings() {
             for (const current_setting in this.settings) {
                 this.settings[current_setting].value = plugin.storage.getItem(this.settings[current_setting].storage_name) ?? this.settings[current_setting].value;
@@ -214,7 +214,7 @@ new Vue({
         stopwatchClassStyle(stopwatch) {
             return stopwatch.running;
         },
-        initializeLoad(context) {
+        loadStopwatches(){
             const loaded_stopwatches = plugin.storage.getItem(SAVED_STOPWATCHES);
             if (loaded_stopwatches) {
                 const parsed_stopwatches = JSON.parse(loaded_stopwatches);
@@ -225,21 +225,24 @@ new Vue({
                     stopwatch.resume();
                 }
             }
+        },
+        initializeLoad(context) {
             // Assign all items if available or go with defaults
             this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
+            this.loadStopwatches();
             this.initSettings();
             console.log(`Plugin Initialized:\n Stopwatch plugin registered${context ? " inside of " + context : ""}`);
         },
-        async stopwatch_add_new(using_stopwatch_template) {
-            // Try to get the name if naming is allowed
-            let stopwatch_name = "";
+        async get_stopwatch_name(){
             if (this.settings.will_use_name.value) {
                 const res = this.debug ? { value: "Debug Stopwatch Name Test" } : await plugin.prompt("Name Stopwatch", "What do you want to name your stopwatch?");
                 if (res.value) {
-                    stopwatch_name = res.value;
+                    return res.value;
                 }
             }
-            let stopwatch = null;
+            return "";
+        },
+        async produce_stopwatch(using_stopwatch_template, stopwatch_name){
             // If using a stopwatch template, get the tracker info and create the stopwatch
             if (using_stopwatch_template) {
                 const stopwatch_template = this.debug
@@ -261,14 +264,19 @@ new Vue({
                     return track.id;
                 }).flat();
                 this.debugLog(trackers);
-                stopwatch = new Stopwatch(stopwatch_name, trackers);
+                return new Stopwatch(stopwatch_name, trackers);
             }
             // Otherwise, just create the timer
-            else {
-                stopwatch = new Stopwatch(stopwatch_name);
-            }
+            return new Stopwatch(stopwatch_name);
+        },
+        async stopwatch_add_new(using_stopwatch_template) {
+            // Try to get the name if naming is allowed
+            const stopwatch_name = await this.get_stopwatch_name();
+            // Produce the stopwatch
+            const stopwatch = await this.produce_stopwatch(using_stopwatch_template, stopwatch_name);
+            // Add it to the currently active stopwatches
             this.current_stopwatches.push(stopwatch);
-            // Auto start
+            // Auto start if it needs to
             if (this.settings.stopwatch_auto_start.value) stopwatch.resume();
             // Show alert for new stopwatch and save the currently active ones 
             this.tryRunAlert(`New ${using_stopwatch_template ? "Specific" : "Custom"} Stopwatch created`, `A new stopwatch with name ${stopwatch_name} has been created!`);
