@@ -39,6 +39,11 @@ class Stopwatch {
         this.currently_saved_millisec = currently_saved_millisec;
         this.last_unpause_time = last_unpause_time ? new Date(last_unpause_time): new Date();
         this.after_stop = Array.isArray(after_stopwatch) ? after_stopwatch : [];
+        if(this.is_running){
+            this.timer = setInterval(() => {
+                this.time_elapsed += this.update_speed;
+            }, this.update_speed)
+        }
     }
     toString() {
         return `Stopwatch (${this.is_running}): => ${this.last_unpause_time}, ${this.currently_saved_millisec}`;
@@ -117,7 +122,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.7",
+    version: "0.10.8",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -220,11 +225,11 @@ new Vue({
                 const parsed_stopwatches = JSON.parse(loaded_stopwatches);
                 this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running, stopwatch_info.last_unpause_time)) || [];
             }
-            for (const stopwatch of this.current_stopwatches) {
-                if (stopwatch.running) {
-                    stopwatch.resume();
-                }
-            }
+            // for (const stopwatch of this.current_stopwatches) {
+            //     if (stopwatch.running) {
+            //         stopwatch.resume();
+            //     }
+            // }
         },
         initializeLoad(context) {
             // Assign all items if available or go with defaults
@@ -286,7 +291,7 @@ new Vue({
         stopwatch_clear(item) {
             this.checkedAction(item, async (_stopwatch, index) => {
                 // Ask to confirm deleting stopwatch
-                let will_delete = this.debug ? { value: true } : await plugin.confirm("Are you sure you want to delete this stopwatch?", "You will not be able recovery it.");
+                const will_delete = this.debug ? { value: true } : await plugin.confirm("Are you sure you want to delete this stopwatch?", "You will not be able recovery it.");
                 // If confirmed, delete the stopwatch at the specific index
                 if (will_delete.value) {
                     this.current_stopwatches.splice(index, 1);
@@ -333,7 +338,7 @@ new Vue({
         },
         // 1. Change stopwatch tracker name
         async changeStopwatchTrackerName() {
-            let res = this.debug ? { res: this.stopwatch_name.value + "!" } : await plugin.prompt("Stopwatch Tracker Name Change", "What would you like the stopwatch tracker name to be called? (defaults to #stopwatch)");
+            const res = this.debug ? { res: this.stopwatch_name.value + "!" } : await plugin.prompt("Stopwatch Tracker Name Change", "What would you like the stopwatch tracker name to be called? (defaults to #stopwatch)");
             if (res.value) {
                 this.stopwatch_name.value = res.value || "#stopwatch";
                 // Prepend "#" if not already there
