@@ -105,7 +105,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.9.4",
+    version: "0.9.5",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -201,6 +201,7 @@ const content = {
         });
         plugin.onUIOpened(()=>this.initializeLoad("UI"));
         plugin.onWidget(()=>this.initializeLoad("Widget"));
+        console.log("Mounted");
     },
     async stopwatch_add_new (using_stopwatch_template) {
         let stopwatch_name = "";
@@ -286,8 +287,8 @@ const content = {
         }
     },
     async initStorage () {
-        await plugin.storage.init();
-        this.initializeLoad("Init Storage");
+        console.log(plugin);
+        await plugin.storage.init().then(()=>this.initializeLoad("Init Storage"));
     }
 };
 PetiteVue.createApp(content).mount('#content');

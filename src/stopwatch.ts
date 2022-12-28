@@ -425,11 +425,13 @@ const plugin = new NomiePlugin({
         // "getTrackableUsage", // May be used to get the usage of a tracker - deactivate for now
         // "getLocation", // May be used if user allows location - deactivate for now
     ],
-    version: "0.9.4", // Mostly follows SemVer
+    version: "0.9.5", // Mostly follows SemVer
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true,
 });
+
+
 
 const content: ContentType & ContentHelperFunctionality & ContentVueFunctionality & StopwatchFunctionality & SettingFunctionality = {
     //#region Content Type
@@ -540,6 +542,7 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
 
         // When Widget is opened
         plugin.onWidget(() => this.initializeLoad("Widget"))
+        console.log("Mounted");
     },
     //#endregion
     //#region StopwatchFunctionality
@@ -646,8 +649,10 @@ const content: ContentType & ContentHelperFunctionality & ContentVueFunctionalit
         }
     },  
     async initStorage() {
-        await plugin.storage.init();
-        this.initializeLoad("Init Storage");
+        console.log(plugin);
+        await plugin.storage.init().then(
+            () => this.initializeLoad("Init Storage")
+        );
     }
 };
 
