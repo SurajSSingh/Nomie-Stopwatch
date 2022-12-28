@@ -29,16 +29,16 @@ class Stopwatch {
     time_elapsed;
     is_running;
     currently_saved_millisec;
-    after_stop;
     last_unpause_time;
+    after_stop;
     timer;
-    constructor(name = "", after_stopwatch = null){
+    constructor(name = "", after_stopwatch = null, time_elapsed = 0, currently_saved_millisec = 0, update_speed = 500, is_running = false){
         this.name = name;
-        this.time_elapsed = {
-            value: 0
-        };
-        this.is_running = false;
-        this.currently_saved_millisec = 0;
+        this.time_elapsed = time_elapsed;
+        this.update_speed = update_speed;
+        this.is_running = is_running;
+        this.currently_saved_millisec = currently_saved_millisec;
+        this.last_unpause_time = new Date();
         this.after_stop = Array.isArray(after_stopwatch) ? after_stopwatch : [];
     }
     toString() {
@@ -63,7 +63,7 @@ class Stopwatch {
         return "Pause";
     }
     get not_running_text() {
-        return this.time_elapsed.value == 0 ? "Start" : "Resume";
+        return this.time_elapsed == 0 ? "Start" : "Resume";
     }
     get clear_text() {
         return "Clear";
@@ -72,7 +72,7 @@ class Stopwatch {
         return "Save";
     }
     get reactive_formattedTime() {
-        this.time_elapsed.value;
+        this.time_elapsed;
         return this.formattedTime;
     }
     pause() {
@@ -86,12 +86,25 @@ class Stopwatch {
         this.last_unpause_time = new Date();
         this.is_running = true;
         this.timer = setInterval(()=>{
-            this.time_elapsed.value += 500;
-        }, 500);
+            this.time_elapsed += this.update_speed;
+        }, this.update_speed);
     }
     toggle() {
         this.is_running ? this.pause() : this.resume();
     }
+    // save(){
+    //     return JSON.stringify({});
+    // }
+    // load(obj):{
+    //     return new {
+    //         name: this.name,
+    //         time_elapsed: this.time_elapsed,
+    //         is_running: this.is_running,
+    //         currently_saved_millisec: this.currently_saved_millisec,
+    //         last_unpause_time: this.last_unpause_time,
+    //         after_stop: this.after_stop,
+    //     };
+    // }
 }
 const plugin = new NomiePlugin({
     name: "Stopwatch",
@@ -104,11 +117,13 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.1",
+    version: "0.10.3",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
 });
+plugin.storage.data = { save_stopwatches: "[{\"name\":\"\",\"time_elapsed\":0,\"is_running\":false,\"currently_saved_millisec\":0,\"last_unpause_time\":\"2022-12-28T05:44:10.904Z\",\"after_stop\":[],\"update_speed\":500}]" }
+console.log(plugin);
 const content = {
     current_stopwatches: [],
     debug: false,
@@ -283,6 +298,7 @@ const content = {
     }
 };
 content.initializeLoad("Pre-mount");
+
 new Vue({
     data () {
         return {
@@ -383,8 +399,9 @@ new Vue({
             if(loaded_stopwatches){
                 const parsed_stopwatches = JSON.parse(loaded_stopwatches);
                 console.log(parsed_stopwatches);
-                this.current_stopwatches = parsed_stopwatches || [];
+                this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running)) || [];
             }
+            console.log("Loaded watches: ", this.current_stopwatches);
             // Assign all items if available or go with defaults
             this.stopwatch_name.value = plugin.storage.getItem(SETTING_STOPWATCH_TRACKER_NAME) ?? "#stopwatch";
             this.initSettings();
