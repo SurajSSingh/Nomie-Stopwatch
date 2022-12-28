@@ -7,8 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nomie Stopwatch Plugin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/petite-vue"></script>
   <script src="https://plugins.nomie.app/v1/nomie-plugin.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
 </head>
 
 <body class="bg-gray-200 dark:bg-gray-800">
@@ -26,9 +26,11 @@
     <section v-if="settings_open" class="bg-gray-300 dark:bg-gray-900 divide-y-2">
       <h1 class="text-gray-900 dark:text-gray-300 text-center font-bold">Settings</h1>
       <div v-for="setting in settings" class="flex flex-col">
-        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-center grow"> {{setting.title}}</span>
+        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-center grow">
+          {{setting.title}}</span>
         <label class="inline-flex relative items-center cursor-pointer mx-2 grow place-self-center">
-          <input type="checkbox" value="" class="sr-only peer" v-model="setting.value" @change="toggleSettingSave(setting)" />
+          <input type="checkbox" value="" class="sr-only peer" v-model="setting.value"
+            @change="toggleSettingSave(setting)" />
           <div
             class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600">
           </div>
@@ -36,7 +38,7 @@
       </div>
     </section>
     <section v-for="(stopwatch, index) in current_stopwatches" class="flex flex-col my-1">
-      <button @click="stopwatch.toggle">
+      <button @click="stopwatch.toggle()">
         <hgroup class="flex w-full py-2 justify-between self-start flex-col divide-y-1 rounded-t-lg"
           v-bind:class="{'bg-red-400 text-red-800 dark:bg-red-600 dark:text-red-200 p-1 flex-1':!stopwatchClassStyle(stopwatch), 'bg-green-400 text-green-800 dark:bg-green-600 dark:text-green-200 p-1 flex-1': stopwatchClassStyle(stopwatch)}">
           <h1 class="text-gray-800 dark:text-gray-200 text-center text-4xl font-medium flex-initial">
