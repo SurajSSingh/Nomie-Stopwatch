@@ -20,7 +20,6 @@ function msToHMS(ms) {
 }
 // Save stopwatches to the plugin storage
 function saveStopwatches(stopwatch_arr) {
-    console.log(stopwatch_arr);
     plugin.storage.setItem(SAVED_STOPWATCHES, JSON.stringify(stopwatch_arr));
 }
 class Stopwatch {
@@ -76,7 +75,6 @@ class Stopwatch {
         return "Save";
     }
     get is_empty_after_stop(){
-        console.log(this.after_stop)
         return this.after_stop.length === 0;
     }
     get reactive_formattedTime() {
@@ -272,7 +270,6 @@ new Vue({
                     }
                     return track.id;
                 }).flat();
-                console.log(trackers);
                 return new Stopwatch(stopwatch_name, trackers);
             }
             // Otherwise, just create the timer
@@ -312,7 +309,6 @@ new Vue({
                 const answers = [];
                 for (const tracker of stopwatch.after_stop) {
                     const answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
-                    console.log(tracker, answer);
                     answers.push(answer);
                 }
                 const name = stopwatch.name ? ` from ${stopwatch.name},` : "";
