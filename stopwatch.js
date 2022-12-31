@@ -125,7 +125,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.11.0",
+    version: "0.11.1",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -256,7 +256,7 @@ new Vue({
             // If using a stopwatch template, get the tracker info and create the stopwatch
             if (using_stopwatch_template) {
                 const stopwatch_template = this.debug
-                    ? {}
+                    ? [{"#test_timer":{tracker: {id: "#test_timer", type:"timer", include:""}}}]
                     : await plugin.selectTrackables(null, true);
                 const trackers = stopwatch_template.map((track) => {
                     if (track.tracker && track.tracker.type === "timer") {
@@ -274,7 +274,8 @@ new Vue({
                         });
                     }
                     return track.id;
-                }).flat();
+                }).flat()
+                .filter(tracker => tracker !== undefined && tracker !== null);
                 return new Stopwatch(stopwatch_name, main_tracker, trackers);
             }
             // Otherwise, just create the timer
@@ -313,9 +314,9 @@ new Vue({
                 stopwatch.pause();
                 // Get answers from any part of the tracker
                 const answers = [];
-                console.log(stopwatch);
+                // console.log(stopwatch);
                 for (const tracker of stopwatch.after_stop) {
-                    console.log(tracker);
+                    // console.log(tracker);
                     const answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
                     answers.push(answer);
                 }
