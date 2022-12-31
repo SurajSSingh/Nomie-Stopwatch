@@ -41,7 +41,7 @@
         <hgroup class="flex w-full py-2 justify-between self-start flex-col divide-y-1 rounded-t-lg"
           v-bind:class="{'bg-red-400 text-red-800 dark:bg-red-600 dark:text-red-200 p-1 flex-1':!stopwatchClassStyle(stopwatch), 'bg-green-400 text-green-800 dark:bg-green-600 dark:text-green-200 p-1 flex-1': stopwatchClassStyle(stopwatch)}">
           <h1 class="text-gray-800 dark:text-gray-200 text-center text-4xl font-medium flex-initial">
-            Stopwatch #{{index+1}}{{(stopwatch.name ? ": " + stopwatch.name : "")}}</h1>
+            {{stopwatch.timer_tracker}} #{{index+1}}{{(stopwatch.name ? ": " + stopwatch.name : "")}}</h1>
           <p v-text="stopwatch.reactive_formattedTime"
             class="text-gray-800 dark:text-gray-200 text-center text-4xl font-bold flex-initial"></p>
           <p v-if="!stopwatch.is_empty_after_stop" class="text-gray-800 dark:text-gray-200 text-center flex-initial">

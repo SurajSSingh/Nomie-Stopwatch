@@ -30,8 +30,9 @@ class Stopwatch {
     last_unpause_time;
     after_stop;
     timer;
-    constructor(name = "", after_stopwatch = null, time_elapsed = 0, currently_saved_millisec = 0, update_speed = 500, is_running = false, last_unpause_time = null) {
+    constructor(name = "", timer_tracker = "#stopwatch", after_stopwatch = null, time_elapsed = 0, currently_saved_millisec = 0, update_speed = 500, is_running = false, last_unpause_time = null) {
         this.name = name;
+        this.timer_tracker = timer_tracker;
         this.time_elapsed = time_elapsed;
         this.update_speed = update_speed;
         this.is_running = is_running;
@@ -124,7 +125,7 @@ const plugin = new NomiePlugin({
         "onWidget",
         "selectTrackables"
     ],
-    version: "0.10.10",
+    version: "0.11.0",
     addToCaptureMenu: true,
     addToMoreMenu: true,
     addToWidgets: true
@@ -225,7 +226,7 @@ new Vue({
             const loaded_stopwatches = plugin.storage.getItem(SAVED_STOPWATCHES);
             if (loaded_stopwatches) {
                 const parsed_stopwatches = JSON.parse(loaded_stopwatches);
-                this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running, stopwatch_info.last_unpause_time)) || [];
+                this.current_stopwatches = parsed_stopwatches?.map(stopwatch_info => new Stopwatch(stopwatch_info.name, stopwatch_info.timer_tracker, stopwatch_info.after_stop, stopwatch_info.time_elapsed, stopwatch_info.currently_saved_millisec, stopwatch_info.update_speed, stopwatch_info.is_running, stopwatch_info.last_unpause_time)) || [];
             }
             // for (const stopwatch of this.current_stopwatches) {
             //     if (stopwatch.running) {
@@ -250,6 +251,8 @@ new Vue({
             return "";
         },
         async produce_stopwatch(using_stopwatch_template, stopwatch_name){
+            // Main tracker is either #stopwatch or the most recent timer selected
+            let main_tracker = this.stopwatch_name.value;
             // If using a stopwatch template, get the tracker info and create the stopwatch
             if (using_stopwatch_template) {
                 const stopwatch_template = this.debug
@@ -257,6 +260,8 @@ new Vue({
                     : await plugin.selectTrackables(null, true);
                 const trackers = stopwatch_template.map((track) => {
                     if (track.tracker && track.tracker.type === "timer") {
+                        // Make this timer the main tracker (when saved)
+                        main_tracker = track.id;
                         // Get each included tracker as name only, split by space
                         return track.tracker.include.split(" ").map((tracker) => {
                             // If it is a tracker (#), person (@), or context (+); get just the name (without value, before '(')
@@ -270,10 +275,10 @@ new Vue({
                     }
                     return track.id;
                 }).flat();
-                return new Stopwatch(stopwatch_name, trackers);
+                return new Stopwatch(stopwatch_name, main_tracker, trackers);
             }
             // Otherwise, just create the timer
-            return new Stopwatch(stopwatch_name);
+            return new Stopwatch(stopwatch_name, main_tracker);
         },
         async stopwatch_add_new(using_stopwatch_template) {
             // Try to get the name if naming is allowed
@@ -315,7 +320,7 @@ new Vue({
                 const name = stopwatch.name ? ` from ${stopwatch.name},` : "";
                 const answer_notes = " " + answers.map((tracker) => tracker.note).join(" ");
                 const final_note = {
-                    note: `${this.stopwatch_name.value}(${stopwatch.formattedTime})${name}${answer_notes}`,
+                    note: `${stopwatch.timer_tracker}(${stopwatch.formattedTime})${name}${answer_notes}`,
                     score: 0,
                 };
                 this.current_stopwatches.splice(index, 1);
