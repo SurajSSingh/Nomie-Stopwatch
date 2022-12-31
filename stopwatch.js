@@ -313,7 +313,9 @@ new Vue({
                 stopwatch.pause();
                 // Get answers from any part of the tracker
                 const answers = [];
+                console.log(stopwatch);
                 for (const tracker of stopwatch.after_stop) {
+                    console.log(tracker);
                     const answer = this.debug ? { note: "#DEBUG" } : await plugin.getTrackableInput(tracker);
                     answers.push(answer);
                 }
