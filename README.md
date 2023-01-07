@@ -1,7 +1,7 @@
 # Nomie Stopwatch
 
 ## Current Status
-This project is very much in alpha. Currently, the stopwatch plugin works as intended, though there may be refactorings to occur later on. ***As of 2022-12-31: Nomie v6 is closing down (see for details https://nomie.app/). If the v6 is released as open-source and is maintained by someone, I will consider trying to get this functionality into Nomie directly.***
+This project is very much in alpha. Currently, the stopwatch plugin works as intended, though there may be refactorings to occur later on. ***Nomiev6 is Open Sourced at https://github.com/open-nomie/nomie6-oss. I will continue working on this as a plugin and may later on bring it up to be included in the official application, specifically when major redesigns and refactorings are complete.***
 
 ## Motivation
 This plug-in is designed to augment the current timer system in Nomie v6. I created this to make it easier to associate specific timer events to other trackers. For example: 
